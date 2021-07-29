@@ -64,7 +64,8 @@ function handleOperatorClick(e) {
     const operatorString = e.target.textContent;
 
     if (currentOperator != operators.NONE) {
-        console.log("Current operator not none - FIXME call equals button automatically");
+        handleEqualsClick();  // automatically call equals func to allow stringing of operators
+        handleOperatorClick(e);  // after equals is processed, run this func again now that operators has ben reset to none
         return;
     }
 
@@ -74,7 +75,7 @@ function handleOperatorClick(e) {
     updateBuffer('main', '0');
 }
 
-function handleEqualsClick(e) {
+function handleEqualsClick() {
     if (currentOperator == operators.NONE) {
         console.log("No selected current operator");
         return;
@@ -83,6 +84,7 @@ function handleEqualsClick(e) {
     num2 = parseFloat(getBuffer('main'));
     updateBuffer('main', operate());
     updateBuffer('secondary', "");
+    currentOperator = operators.NONE;  // reset current operator
 }
 
 function operate() {
@@ -99,11 +101,15 @@ function operate() {
             answer = num1 * num2;
             break;
         case operators.DIVIDE:
-            answer = num1 / num2;
-            break;
-        default:
-            console.log("ERROR in operate function");
-            break;
+            if (num2 == 0) {
+                // FIXME: display alert and call clear - stop parent function call
+                alert("Cannot divide by 0!");
+                return "error";  // FIXME: use this return value to break out of operator function
+            }
+            else {
+                answer = num1 / num2;
+                break;
+            }
     }
 
     return answer;
