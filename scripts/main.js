@@ -1,4 +1,3 @@
-
 const numberButtons = document.querySelectorAll(".number");
 numberButtons.forEach(numberButton => {
     numberButton.addEventListener("click", handleNumberClick);
@@ -11,9 +10,39 @@ operatorButtons.forEach(operatorButton => {
 
 document.getElementById("equals").addEventListener("click", handleEqualsClick)
 
-function handleNumberClick(e) {
+
+function updateBuffer(buffer, text) {
     const mainBuffer = document.getElementById('main-buffer');
-    currentBufferContent = mainBuffer.textContent;
+    const secondaryBuffer = document.getElementById("secondary-buffer");
+
+    switch (buffer) {
+        case "main":
+            mainBuffer.textContent = text;
+            break;
+        case "secondary":
+            secondaryBuffer.textContent = text;
+            break;
+        default:
+            throw "No buffer specified";
+    }
+}
+
+function getBuffer(buffer) {
+    const mainBuffer = document.getElementById('main-buffer');
+    const secondaryBuffer = document.getElementById("secondary-buffer");
+
+    switch (buffer) {
+        case "main":
+            return mainBuffer.textContent;
+        case "secondary":
+            return secondaryBuffer.textContent;
+        default:
+            throw "No buffer specified";
+    }
+}
+
+function handleNumberClick(e) {
+    currentBufferContent = getBuffer('main');
     clickedNumber = e.target.textContent;
 
     const amountOfCommas = currentBufferContent.split('.').length - 1;
@@ -27,40 +56,33 @@ function handleNumberClick(e) {
         currentBufferContent = currentBufferContent.substring(1);
     }
 
-    mainBuffer.textContent = currentBufferContent + clickedNumber;
+    updateBuffer('main', currentBufferContent + clickedNumber)
 }
 
 function handleOperatorClick(e) {
-    const mainBuffer = document.getElementById('main-buffer');
-    const secondaryBuffer = document.getElementById("secondary-buffer");
     const clickedOperator = e.target.id.toUpperCase();
-
+    const operatorString = e.target.textContent;
 
     if (currentOperator != operators.NONE) {
         console.log("Current operator not none - FIXME call equals button automatically");
         return;
     }
 
-    console.log("Adding clicked operator to currentOp");
     currentOperator = operators[clickedOperator];
-    num1 = parseFloat(mainBuffer.textContent);
-    secondaryBuffer.textContent = mainBuffer.textContent + " " + e.target.textContent;
-    mainBuffer.textContent = '0';
+    num1 = parseFloat(getBuffer('main'));
+    updateBuffer('secondary', getBuffer('main') + " " + operatorString);
+    updateBuffer('main', '0');
 }
 
 function handleEqualsClick(e) {
-    const mainBuffer = document.getElementById('main-buffer');
-    const secondaryBuffer = document.getElementById("secondary-buffer");
-
     if (currentOperator == operators.NONE) {
         console.log("No selected current operator");
         return;
     }
 
-    num2 = parseFloat(mainBuffer.textContent);
-    // secondaryBuffer.textContent = secondaryBuffer.textContent + " " + mainBuffer.textContent + " =";
-    secondaryBuffer.textContent = "";  // alternative method
-    mainBuffer.textContent = operate();
+    num2 = parseFloat(getBuffer('main'));
+    updateBuffer('main', operate());
+    updateBuffer('secondary', "");
 }
 
 function operate() {
@@ -95,6 +117,7 @@ const operators = {
     NONE: "none",
 }
 
+
 let currentOperator = operators.NONE;
-let num1;  // first number or number in secondary buffer
-let num2;
+let num1;  // store first number / number in secondary buffer
+let num2;  // store second number to calculate
