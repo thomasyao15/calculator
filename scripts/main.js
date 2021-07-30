@@ -1,3 +1,17 @@
+
+const operators = {
+    PLUS: "plus",
+    MINUS: "minus",
+    MULTIPLY: "multiply",
+    DIVIDE: "divide",
+    NONE: "none",
+}
+
+let currentOperator = operators.NONE;
+let num1;  // store first number / number in secondary buffer
+let num2;  // store second number to calculate
+
+
 const numberButtons = document.querySelectorAll(".number");
 numberButtons.forEach(numberButton => {
     numberButton.addEventListener("click", handleNumberClick);
@@ -13,47 +27,15 @@ document.getElementById("delete").addEventListener("click", handleDeleteClick);
 document.getElementById("clear").addEventListener("click", handleClearClick);
 
 
-function updateBuffer(buffer, text) {
-    const mainBuffer = document.getElementById('main-buffer');
-    const secondaryBuffer = document.getElementById("secondary-buffer");
-
-    switch (buffer) {
-        case "main":
-            if (typeof text == "number") {
-                if (text.toString().includes(".")) {
-                    text = text.toFixed(5);
-                }
-            }
-            mainBuffer.textContent = text;
-            break;
-        case "secondary":
-            secondaryBuffer.textContent = text;
-            break;
-        default:
-            throw "No buffer specified";
-    }
-}
-
-function getBuffer(buffer) {
-    const mainBuffer = document.getElementById('main-buffer');
-    const secondaryBuffer = document.getElementById("secondary-buffer");
-
-    switch (buffer) {
-        case "main":
-            return mainBuffer.textContent;
-        case "secondary":
-            return secondaryBuffer.textContent;
-        default:
-            throw "No buffer specified";
-    }
-}
+// Main buffer is the main h1 line on the calc screen - stores current number
+// Secondary buffer is smaller h3 line on top of main buffer - stores previous number
 
 function handleNumberClick(e) {
     currentBufferContent = getBuffer('main');
     clickedNumber = e.target.textContent;
 
-    const amountOfCommas = currentBufferContent.split('.').length - 1;
-    if (clickedNumber == '.' && amountOfCommas > 0) {
+    const amountOfDecimals = currentBufferContent.split('.').length - 1;
+    if (clickedNumber == '.' && amountOfDecimals > 0) {
         return;
     }
 
@@ -76,7 +58,7 @@ function handleOperatorClick(e) {
     }
 
     currentOperator = operators[clickedOperator];
-    num1 = parseFloat(getBuffer('main'));
+    num1 = parseFloat(getBuffer('main'));  // store main buffer number in num1 var
     updateBuffer('secondary', getBuffer('main') + " " + operatorString);
     updateBuffer('main', '0');
 }
@@ -95,7 +77,7 @@ function handleEqualsClick() {
         return;
     }
 
-    updateBuffer('main', operate());
+    updateBuffer('main', answer);
     updateBuffer('secondary', "");
     currentOperator = operators.NONE;  // reset current operator
 }
@@ -138,14 +120,38 @@ function handleClearClick() {
     currentOperator = operators.NONE;
 }
 
-const operators = {
-    PLUS: "plus",
-    MINUS: "minus",
-    MULTIPLY: "multiply",
-    DIVIDE: "divide",
-    NONE: "none",
+function updateBuffer(buffer, text) {
+    const mainBuffer = document.getElementById('main-buffer');
+    const secondaryBuffer = document.getElementById("secondary-buffer");
+
+    switch (buffer) {
+        case "main":
+            // fix decimal rounding to 5 decimals if it is a float
+            if (typeof text == "number") {
+                if (text.toString().includes(".")) {
+                    text = text.toFixed(5);
+                }
+            }
+            mainBuffer.textContent = text;
+            break;
+        case "secondary":
+            secondaryBuffer.textContent = text;
+            break;
+        default:
+            throw "No buffer specified";
+    }
 }
 
-let currentOperator = operators.NONE;
-let num1;  // store first number / number in secondary buffer
-let num2;  // store second number to calculate
+function getBuffer(buffer) {
+    const mainBuffer = document.getElementById('main-buffer');
+    const secondaryBuffer = document.getElementById("secondary-buffer");
+
+    switch (buffer) {
+        case "main":
+            return mainBuffer.textContent;
+        case "secondary":
+            return secondaryBuffer.textContent;
+        default:
+            throw "No buffer specified";
+    }
+}

@@ -5,7 +5,8 @@ html, button {
 }
 
 h1, h3 {
-    line-height: 5px;
+    /* line-height: 5px; */
+    margin: 10px;
 }
 
 .main {
@@ -30,11 +31,12 @@ h1, h3 {
     text-align: right;
     display: flex;
     flex-direction: column;
-    justify-content: end;
+    justify-content: flex-end;
     margin-bottom: 20px;
     border-radius: 5px;
     border: 2px solid rgb(0, 0, 0);
-    height: 90px;
+    min-height: 100px;
+    overflow-wrap: break-word;
 }
 
 .big-buttons {
