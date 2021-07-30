@@ -8,7 +8,9 @@ operatorButtons.forEach(operatorButton => {
     operatorButton.addEventListener("click", handleOperatorClick)
 })
 
-document.getElementById("equals").addEventListener("click", handleEqualsClick)
+document.getElementById("equals").addEventListener("click", handleEqualsClick);
+document.getElementById("delete").addEventListener("click", handleDeleteClick);
+document.getElementById("clear").addEventListener("click", handleClearClick);
 
 
 function updateBuffer(buffer, text) {
@@ -17,6 +19,11 @@ function updateBuffer(buffer, text) {
 
     switch (buffer) {
         case "main":
+            if (typeof text == "number") {
+                if (text.toString().includes(".")) {
+                    text = text.toFixed(5);
+                }
+            }
             mainBuffer.textContent = text;
             break;
         case "secondary":
@@ -47,7 +54,6 @@ function handleNumberClick(e) {
 
     const amountOfCommas = currentBufferContent.split('.').length - 1;
     if (clickedNumber == '.' && amountOfCommas > 0) {
-        console.log("Already 1 comma in number");
         return;
     }
 
@@ -77,11 +83,18 @@ function handleOperatorClick(e) {
 
 function handleEqualsClick() {
     if (currentOperator == operators.NONE) {
-        console.log("No selected current operator");
         return;
     }
 
     num2 = parseFloat(getBuffer('main'));
+
+    answer = operate();
+    if (!isFinite(num1) || !isFinite(num2) || !isFinite(answer)) {
+        alert("An illegal calculation occurred, please try again.")
+        handleClearClick();
+        return;
+    }
+
     updateBuffer('main', operate());
     updateBuffer('secondary', "");
     currentOperator = operators.NONE;  // reset current operator
@@ -101,18 +114,28 @@ function operate() {
             answer = num1 * num2;
             break;
         case operators.DIVIDE:
-            if (num2 == 0) {
-                // FIXME: display alert and call clear - stop parent function call
-                alert("Cannot divide by 0!");
-                return "error";  // FIXME: use this return value to break out of operator function
-            }
-            else {
-                answer = num1 / num2;
-                break;
-            }
+            answer = num1 / num2;
+            break;
     }
 
     return answer;
+}
+
+function handleDeleteClick() {
+    mainBuffer = getBuffer('main');
+
+    if (mainBuffer.length <= 1) {
+        updateBuffer('main', '0');
+    }
+    else {
+        updateBuffer('main', mainBuffer.substring(0, mainBuffer.length - 1));
+    }
+}
+
+function handleClearClick() {
+    updateBuffer('main', "0");
+    updateBuffer("secondary", "");
+    currentOperator = operators.NONE;
 }
 
 const operators = {
@@ -122,7 +145,6 @@ const operators = {
     DIVIDE: "divide",
     NONE: "none",
 }
-
 
 let currentOperator = operators.NONE;
 let num1;  // store first number / number in secondary buffer
